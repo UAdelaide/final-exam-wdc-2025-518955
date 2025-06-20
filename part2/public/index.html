@@ -4,30 +4,70 @@
   <meta charset="UTF-8">
   <title>Dog Walking Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body class="bg-light">
 
-  <div id="app" class="container py-5">
-    <h1 class="mb-4 text-primary">{{ message }}</h1>
-    <p class="lead">Connect with trusted walkers for your beloved dog!</p>
+  <div class="container py-5">
+    <h1 class="mb-4 text-primary">Welcome to the Dog Walking Service!</h1>
 
-    <a href="owner-dashboard.html" class="btn btn-outline-primary me-2">Owner Dashboard</a>
-    <a href="walker-dashboard.html" class="btn btn-outline-success">Walker Dashboard</a>
+    <!-- login interface -->
+    
+    <form id="loginForm" method="POST" action="/login" class="mb-5">
+      <!-- error  -->
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error')) {
+          document.write(
+            `<div class="alert alert-danger">${params.get('error')}</div>`
+          );
+        }
+      </script>
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <!-- Name -->
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username">
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password">
+      </div>
+      <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+
+    <!-- dog list -->
+    <h2>All Registered Dogs</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Dog ID</th>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Owner ID</th>
+          <th>Photo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Buddy</td>
+          <td>medium</td>
+          <td>1</td>
+          <td><img src="images/buddy.jpg" alt="Buddy" width="80"></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Lucy</td>
+          <td>small</td>
+          <td>1</td>
+          <td><img src="images/lucy.jpg" alt="Lucy" width="80"></td>
+        </tr>
+        
+      </tbody>
+    </table>
   </div>
 
-  <script>
-    const { createApp } = Vue;
-    createApp({
-      data() {
-        return {
-          message: 'Welcome to the Dog Walking Service!'
-        };
-      }
-    }).mount('#app');
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
