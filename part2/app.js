@@ -1,35 +1,28 @@
 const express = require('express');
-// session and password encryption, MySQL driver
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2/promise');
-// end
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: false })); 
-// session
+app.use(express.urlencoded({ extended: false }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change_this_secret',
   resave: false,
   saveUninitialized: false
 }));
-// end
 
 app.use(express.static(path.join(__dirname, '/public')));
 
-// create database link
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME
 });
-
 
 // Routes
 const walkRoutes = require('./routes/walkRoutes');
@@ -38,11 +31,10 @@ const userRoutes = require('./routes/userRoutes');
 app.use('/api/walks', walkRoutes);
 app.use('/api/users', userRoutes);
 
-// Login processing
+// Login route
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    // request users
     const [rows] = await db.query(
       'SELECT user_id, username, password_hash, role FROM Users WHERE username = ?',
       [username]
@@ -51,14 +43,13 @@ app.post('/login', async (req, res) => {
       return res.redirect('/?error=The username or password is incorrect');
     }
     const user = rows[0];
-    // vaildate users
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) {
       return res.redirect('/?error=The username or password is incorrect');
     }
-    // save session
+
     req.session.user = { id: user.user_id, username: user.username, role: user.role };
-    // jump
+
     if (user.role === 'owner') {
       return res.redirect('/owner-dashboard.html');
     } else {
@@ -70,18 +61,16 @@ app.post('/login', async (req, res) => {
   }
 });
 
-//Log out of the route
+// Logout route
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {
-    if (err) {
-      return res.status(500).send('Logout failed');
-    }
-    res.clearCookie('connect.sid'); 
-    res.redirect('/');              // return
+    if (err) return res.status(500).send('Logout failed');
+    res.clearCookie('connect.sid');
+    res.redirect('/');
   });
 });
 
-// return all dogs
+// Load dogs for the current user
 app.get('/api/dogs', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).send('Unauthorized');
@@ -99,3 +88,4 @@ app.get('/api/dogs', async (req, res) => {
 });
 
 module.exports = app;
+
